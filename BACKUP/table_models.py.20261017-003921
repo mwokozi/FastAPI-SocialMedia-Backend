@@ -1,0 +1,78 @@
+from sqlmodel import SQLModel, Field
+from datetime import datetime ,timezone
+from pydantic import BaseModel, SecretStr
+
+
+#########################################
+# Base Models
+########################################
+class BaseUser ( SQLModel ) : 
+	user_name : str = Field (unique= True, index = True ) 
+	hashed_password : str
+	created_at : datetime = Field( default_factory = lambda: datetime.now( timezone.utc ) )
+	disabled : bool = False 
+
+class BasePost ( SQLModel ) : 
+	text : str = Field ( max_length = 144 , min_length = 3 ) 
+	created_at : datetime = Field( default_factory = lambda: datetime.now( timezone.utc ) )	
+	deleted : bool = False
+	like_count : int = 0 
+class BaseComment ( SQLModel ) : 
+	text : str = Field ( max_length = 144 , min_length = 3 ) 
+	created_at : datetime = Field( default_factory = lambda: datetime.now( timezone.utc ) )	
+	deleted : bool = Field( default= False ) 
+	like_count: int  = 0 
+class BaseFriend ( SQLModel ): 
+	since : datetime = Field( default_factory = lambda: datetime.now( timezone.utc ))  
+########################################
+# Table Models
+########################################
+class User ( BaseUser, table = True ) : 
+	user_id : int | None = Field ( default = None, primary_key = True ) 
+
+class Post ( BasePost, table = True ): 
+	post_id : int| None  = Field( default= None, primary_key=True ) 
+	author_id : int = Field ( foreign_key= "user.user_id")
+class Comment ( BaseComment, table= True  ) : 
+	comment_id : int | None= Field( default=None, primary_key=True ) 
+	author_id :int = Field ( foreign_key ="user.user_id" ) 
+	parent_id : int | None = None 
+class Friend ( BaseFriend, Table= True) : 
+	user_id : int = Field ( foreign_key= "user.user_id" ) 
+	friend_id : int = Field ( foreign_key = "user.user_id" ) 
+############################################
+# In Models
+############################################
+class UserIn ( BaseModel ): 
+	user_name : str  
+	password : SecretStr 	
+class PostIn ( BaseModel ): 
+	author_name : str
+	text : str
+	
+class CommentIn ( BaseModel ) : 
+	author_name : str 
+	text : str
+############################################
+# Read Models
+############################################
+class UserRead ( BaseModel ): 
+	user_name : str 
+	created : datetime
+
+class PostRead ( BaseModel ) : 
+	author_name : str
+	text : str 
+	created : datetime 
+class CommentRead( BaseModel ) : 
+	author_name : str 
+	text : str
+	created : datetime
+
+ 
+
+
+
+
+
+

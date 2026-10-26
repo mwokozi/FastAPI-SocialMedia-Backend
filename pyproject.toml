@@ -1,0 +1,31 @@
+[project]
+name = "uv-social-network"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Martin", email = "31234495+mwokozi@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "asyncpg>=0.32.0",
+    "datetime>=6.0",
+    "fastapi>=0.143.0",
+    "psycopg>=3.3.6",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic>=2.14.0",
+    "pydantic-settings>=2.15.0",
+    "pyjwt>=2.15.1",
+    "python-multipart>=0.0.32",
+    "sqlalchemy[asyncio,dialect,dialects]>=2.1.4",
+    "sqlmodel[dialect,dialects]>=0.0.48",
+    "toml>=0.10.2",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+uv-social-network = "uv_social_network:main"
+
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"

@@ -1,0 +1,3 @@
+LOG_DIR_PATH="/Users/mwokoziclarke/app/log/"
+LEVEL = "DEBUG"  
+
