@@ -93,7 +93,6 @@ async def create_user ( session : AsyncSession ,username : str , password : str 
 	if user is None  : 
 		raise HTTPException ( status_code=401 , detail = "username alreay exists")
 	return user    
-#async def create_account ( session : AsyncSession, user : User ): 
 async def get_user ( session : AsyncSession , username : str ) -> Optional[UserRead, None]  : 
 	logger.info(  f"get_user(): Fetching user {username}" ) 
 	stmt = select ( User ).where ( User.user_name == username )
@@ -139,7 +138,7 @@ async def get_role_id ( session : AsyncSession, role_name="end_user", cache = {}
 		#breakpoint() 
 		cache[ role_name ] = role_id
 	return cache [ role_name ]
-
+ 
 
 
  
@@ -206,9 +205,9 @@ async def send_friend_request( session : SessionDep, friend_name : str , token :
 		return existing_request
 	request = FriendRequest( requester_id = user.user_id, requestee_id = friend.user_id   ) 
 	session.add ( request ) 
-	#await session.flush ( request )  
-	await session.commit() 
+	await session.flush ( )  
 	await session.refresh ( request ) 
+	await session.commit() 
 	return request
 @app.post( "/accept-request/{requester}" ) 
 async def accept_friend_request ( session : SessionDep, requester : str , token : Annotated[ str , Depends( oauth2_scheme ) ]  ) : 
@@ -217,7 +216,6 @@ async def accept_friend_request ( session : SessionDep, requester : str , token 
 	stmt = select ( FriendRequest).where ( FriendRequest.requester_id == requester_obj.user_id and FriendRequest.requestee == user.user_id and FriendRequest.status == StatusEnum.pending and FriendRequest.deleted == False  ) 
 	result = await session.execute ( stmt ) 
 	pending_request, = result.one_or_none() 
-	#breakpoint() 
 	if not pending_request : 
 		raise HTTPException( status_code=401, detail= f"No pending request from user {requester.user_name} " ) 
 	updt_stmt = update(FriendRequest).where( FriendRequest.request_id == pending_request.request_id and FriendRequest.status == StatusEnum.pending  ).values ( status = StatusEnum.accepted  )
@@ -233,10 +231,6 @@ async def accept_friend_request ( session : SessionDep, requester : str , token 
 async def add_friend ( session : SessionDep , friend:str, token : Annotated[str, Depends(oauth2_scheme ) ]     ):
 	user = await get_current_user ( session, token  ) 
 	friend = await get_user( session ,friend ) 
-	#stmt = select (User).where ( User.user_name.in_((user.user_name, friend ) )   ) 
-	#results = await session.execute( stmt ) 
-	#user, friend  = results.scalars()
-	#breakpoint()	
 	friend_submission = Friend ( user_id = user.user_id, friend_id = friend.user_id ) 
 	session.add( friend_submission )
 	await session.commit()
